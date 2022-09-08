@@ -94,7 +94,7 @@ def detect__circleCannyHough( image=None, iGauss=None, threshold=None, param1=No
     # ------------------------------------------------- #
     # --- [4] return value                          --- #
     # ------------------------------------------------- #
-    if   ( returnType.lower() == "list"    ):
+    if   ( returnType.lower() in [ "list", "tuple", "xyr,image"] ):
         ret = [ circles, img ]
         return( ret )
     

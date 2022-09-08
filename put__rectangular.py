@@ -8,8 +8,8 @@ import os, sys
 # ========================================================= #
 
 def put__rectangular( image=None, bb=None, centers=None, edge_length =50, \
-                           colors=None, colorList=[ [255,0,0], [0,255,0] ], colorValues=None, \
-                           thickness=2 ):
+                      colors=None, colorList=[ [255,0,0], [0,255,0] ], colorValues=None, \
+                      thickness=2 ):
 
     # ------------------------------------------------- #
     # --- [1]  arguments                            --- #
@@ -36,13 +36,18 @@ def put__rectangular( image=None, bb=None, centers=None, edge_length =50, \
         else:
             colors  = np.repeat( np.array( [ [255,0,0] ], dtype=np.uint8 ), \
                                  bb.shape[0], axis=0 )
+
+    colors_ = np.copy( np.array( colors ) )
+    if ( colors_.ndim == 1 ):
+        colors_ = np.repeat( colors_[None,:], bb.shape[0], axis=0 )
+            
     # ------------------------------------------------- #
     # --- [2] put rectangle on image                --- #
     # ------------------------------------------------- #
     for ik,hbb in enumerate( bb ):
         pt1     = tuple( [ int(val) for val in hbb[0:2] ] )
         pt2     = tuple( [ int(val) for val in hbb[2:4] ] )
-        hcolor  = tuple( [ int(val) for val in colors[ik] ] )
+        hcolor  = tuple( [ int(val) for val in colors_[ik] ] )
         image   = cv2.rectangle( image, pt1, pt2, color=hcolor, thickness=thickness )
     
     # ------------------------------------------------- #

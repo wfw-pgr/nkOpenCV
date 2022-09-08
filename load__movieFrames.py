@@ -7,7 +7,7 @@ import numpy as np
 # ===  load__movieFrames.py                             === #
 # ========================================================= #
 
-def load__movieFrames( inpFile=None, resize=None, frame_to_use=None ):
+def load__movieFrames( inpFile=None, resize=None, frame_to_use=None, designate=False ):
 
     w_, h_ = 0, 1
     
@@ -40,6 +40,18 @@ def load__movieFrames( inpFile=None, resize=None, frame_to_use=None ):
     width  = cap.get( cv2.CAP_PROP_FRAME_WIDTH  )
     height = cap.get( cv2.CAP_PROP_FRAME_HEIGHT )
     if ( resize is not None ):
+        if   ( type(resize) is int ):
+            if ( width >= height ):
+                height_ = resize * height / width
+                width_  = resize
+            else:
+                width_  = resize * width / height
+                height_ = resize
+            resize = [ width_, height_ ]
+        if   ( type(resize) is float ):
+            height_ = resize * height
+            width_  = resize * width
+            resize = [ width_, height_ ]
         if   ( ( resize[w_] is     None ) and ( resize[h_] is not None ) ):
             resize_ = [ int( width/height*resize[h_]), int( resize[h_] ) ]
         elif ( ( resize[w_] is not None ) and ( resize[h_] is     None ) ):
@@ -65,15 +77,24 @@ def load__movieFrames( inpFile=None, resize=None, frame_to_use=None ):
             frame_to_use = [ 0.0, 0.0, 1 ]
         elif ( frame_to_use.lower() == "last" ): # all 
             frame_to_use = [ 1.0, 1.0, 1 ]
-    if ( type( frame_to_use ) is int   ): # 11 = [ first, last ] => 11 division
-        frame_to_use = np.linspace( 0, float( cap.get( cv2.CAP_PROP_FRAME_COUNT )-1 ), frame_to_use )
-        frame_to_use = [ int(val) for val in frame_to_use ]
+
+    if ( designate is True ):
+        if ( type(frame_to_use) is int ):
+            frame_to_use = [ frame_to_use ]
+        if ( type(frame_to_use) is list ):
+            frame_to_use = [ int(val) for val in frame_to_use ]
+        else:
+            sys.exit( "frame_to_use type ???" )
+    else:
+        if ( type( frame_to_use ) is int   ): # 11 = [ first, last ] => 11 division
+            frame_to_use = np.linspace( 0, float( cap.get( cv2.CAP_PROP_FRAME_COUNT )-1 ), frame_to_use )
+            frame_to_use = [ int(val) for val in frame_to_use ]
         
-    elif ( type( frame_to_use ) is list  ): # [ 0.1, 0.9, 11 ] =   [0.1,0.9] => 11 division
-        from_         = int( frame_to_use[0]*float( cap.get( cv2.CAP_PROP_FRAME_COUNT )-1 ) )
-        to_           = int( frame_to_use[1]*float( cap.get( cv2.CAP_PROP_FRAME_COUNT )-1 ) )
-        frame_to_use = np.linspace( from_, to_, frame_to_use[2] )
-        frame_to_use = [ int(val) for val in frame_to_use ]
+        elif ( type( frame_to_use ) is list  ): # [ 0.1, 0.9, 11 ] =   [0.1,0.9] => 11 division
+            from_         = int( frame_to_use[0]*float( cap.get( cv2.CAP_PROP_FRAME_COUNT )-1 ) )
+            to_           = int( frame_to_use[1]*float( cap.get( cv2.CAP_PROP_FRAME_COUNT )-1 ) )
+            frame_to_use = np.linspace( from_, to_, frame_to_use[2] )
+            frame_to_use = [ int(val) for val in frame_to_use ]
 
     # ------------------------------------------------- #
     # --- [5] devide into images                    --- #

@@ -46,6 +46,18 @@ def save__movieFrames( inpFile=None, outFile=None, output_format="jpg", resize=N
     width  = cap.get( cv2.CAP_PROP_FRAME_WIDTH  )
     height = cap.get( cv2.CAP_PROP_FRAME_HEIGHT )
     if ( resize is not None ):
+        if   ( type(resize) is int ):
+            if ( width >= height ):
+                height_ = resize * height / width
+                width_  = resize
+            else:
+                width_  = resize * width / height
+                height_ = resize
+            resize = [ width_, height_ ]
+        if   ( type(resize) is float ):
+            height_ = resize * height
+            width_  = resize * width
+            resize = [ width_, height_ ]
         if   ( ( resize[w_] is     None ) and ( resize[h_] is not None ) ):
             resize_ = [ int( width/height*resize[h_]), int( resize[h_] ) ]
         elif ( ( resize[w_] is not None ) and ( resize[h_] is     None ) ):

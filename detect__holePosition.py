@@ -1,5 +1,5 @@
 import cv2, os, sys
-import numpy as np
+import numpy                                     as np
 import nkOpenCV.detect__circleCannyHough         as cch
 import nkOpenCV.perspectiveTransform__byARmarker as per
 import nkUtilities.load__pointFile               as lpf
@@ -18,7 +18,7 @@ import nkBasicAlgs.search__nearestPoint          as snp
 # ========================================================= #
 
 def detect__holePosition( image=None, imgFile=None, figSize=None, const=None, maxDist=None, \
-                          ARm_designs=None, ARmFile=None, posFile=None ):
+                          ARm_designs=None, ARmFile=None, posFile=None, returnType="hole-image"):
 
     x_, y_, z_ = 0, 1, 2
 
@@ -47,23 +47,24 @@ def detect__holePosition( image=None, imgFile=None, figSize=None, const=None, ma
     image_  = per.perspectiveTransform__byARmarker( image=image_, ARm_designs=ARm_designs, \
                                                     figSize=figSize )
     if ( image_ is None ):
-        return( np.array( [] ), None )
+        return( np.array( [] ), np.array( [] ), None )
     
     # ------------------------------------------------- #
     # --- [3] Canny-Hough Conversion                --- #
     # ------------------------------------------------- #
     image_in           = np.copy( image_ )
     circles, img_canny = cch.detect__circleCannyHough( image=image_in, **const )
+    if ( circles is None ):
+        return( np.array( [] ), np.array( [] ), None )
 
     # ------------------------------------------------- #
     # --- [4] search nearest point                  --- #
     # ------------------------------------------------- #
     holes          = lpf.load__pointFile( inpFile=posFile, returnType="point" )
-    designed_pos   = holes  [ :, x_:y_+1 ]
     detected_pos   = circles[ :, x_:y_+1 ]
+    designed_pos   = holes  [ :, x_:y_+1 ]
     index,distance = snp.search__nearestPoint( vec1=designed_pos, vec2=detected_pos,  \
                                                returnType="index-distance", foreach=1 )
-
     # ------------------------------------------------- #
     # --- [5] replace by detected position          --- #
     # ------------------------------------------------- #
@@ -75,8 +76,11 @@ def detect__holePosition( image=None, imgFile=None, figSize=None, const=None, ma
     # ------------------------------------------------- #
     holepos = np.concatenate( [ designed_pos, nearby[:,None], index[:,None] ], axis=1 )
     success = True
-    return( holepos, image_ )
-
+    if ( returnType.lower() == "hole-image" ):
+        return( holepos, image_ )
+    if ( returnType.lower() == "hole-circle-image" ):
+        return( holepos, circles, image_ )
+    
 
 # ========================================================= #
 # ===   Execution of Pragram                            === #
