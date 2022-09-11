@@ -34,6 +34,17 @@ def put__ellipses( image=None, xc=None, yc=None, rc=None, a1=None, a2=None, angl
         else:
             colors    = np.repeat( np.array( [ [255,0,0] ], dtype=np.uint8 ), \
                                    xc.shape[0], axis=0 )
+    if ( type(colors) is str ):
+        if   ( colors.lower() == "blue"  ):
+            clist  = [ [255,0,0] ]
+        elif ( colors.lower() == "green" ):
+            clist  = [ [0,255,0] ]
+        elif ( colors.lower() == "red"   ):
+            clist  = [ [0,0,255] ]
+        elif ( colors.lower() == "black" ):
+            clist  = [ [0,0,0] ]
+        colors = np.repeat( np.array( clist, dtype=np.uint8 ), xc.shape[0], axis=0 )
+
             
     # ------------------------------------------------- #
     # --- [2] put rectangle on image                --- #
